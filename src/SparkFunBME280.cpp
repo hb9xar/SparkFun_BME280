@@ -102,6 +102,22 @@ uint8_t BME280::begin()
 	if(chipID != 0x58 && chipID != 0x60) // Is this BMP or BME?
 	return(chipID); //This is not BMP nor BME!
 
+	// Send a soft reset.
+	reset();
+	// Wait until the NVM data has finished loading.
+	uint8_t status;
+	uint8_t retry = 5;
+	static const uint8_t BMEP280_STATUS_IM_UPDATE = 0b01;
+	do {
+		delay(2);
+		status = readRegister(BME280_STAT_REG);
+	} while ((status & BME280_STATUS_IM_UPDATE) && (--retry));
+
+	// failed to load NVM data
+	if (status & BME280_STATUS_IM_UPDATE) {
+		return 0x00;
+	}
+
 	//Reading all compensation data, range 0x88:A1, 0xE1:E7
 	calibration.dig_T1 = ((uint16_t)((readRegister(BME280_DIG_T1_MSB_REG) << 8) + readRegister(BME280_DIG_T1_LSB_REG)));
 	calibration.dig_T2 = ((int16_t)((readRegister(BME280_DIG_T2_MSB_REG) << 8) + readRegister(BME280_DIG_T2_LSB_REG)));
