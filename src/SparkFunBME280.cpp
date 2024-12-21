@@ -111,10 +111,10 @@ uint8_t BME280::begin()
 	do {
 		delay(2);
 		status = readRegister(BME280_STAT_REG);
-	} while ((status & BME280_STATUS_IM_UPDATE) && (--retry));
+	} while ((status & BMEP280_STATUS_IM_UPDATE) && (--retry));
 
 	// failed to load NVM data
-	if (status & BME280_STATUS_IM_UPDATE) {
+	if (status & BMEP280_STATUS_IM_UPDATE) {
 		return 0x00;
 	}
 
